@@ -5,7 +5,7 @@ BinarySearchTree<Key, T, Compare, Allocator>::iterator::iterator()
     : node_(nullptr), tree_(nullptr) {}
 
 template <typename Key, typename T, typename Compare, typename Allocator>
-BinarySearchTree<Key, T, Compare, Allocator>::iterator::iterator(typename BinarySearchTree::Node* node, cont BinarySearchTree* tree)  
+BinarySearchTree<Key, T, Compare, Allocator>::iterator::iterator(typename BinarySearchTree::Node* node, const BinarySearchTree* tree)  
     : node_(node), tree_(tree) {}
 
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -80,11 +80,6 @@ BinarySearchTree<Key, T, Compare, Allocator>::iterator::operator--(int) {
 template <typename Key, typename T, typename Compare, typename Allocator>
 bool BinarySearchTree<Key, T, Compare, Allocator>::iterator::operator==(const iterator& other) const {
     return node_ == other.node_;
-}
-
-template <typename Key, typename T, typename Compare, typename Allocator>
-bool BinarySearchTree<Key, T, Compare, Allocator>::iterator::operator!=(const iterator& other) const {
-    return node_ != other.node_;
 }
 
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -187,7 +182,7 @@ BinarySearchTree<Key, T, Compare, Allocator>::BinarySearchTree(const key_compare
 
 template <typename Key, typename T, typename Compare, typename Allocator>
 typename BinarySearchTree<Key, T, Compare, Allocator>::Node*
-BinarySearchTree<Key, T, Compare, Allocator>::copy_tree(Node* other_noe, Node* parent) {
+BinarySearchTree<Key, T, Compare, Allocator>::copy_tree(Node* other_node, Node* parent) {
     if (!other_node) {
         return nullptr;
     }
@@ -201,13 +196,13 @@ BinarySearchTree<Key, T, Compare, Allocator>::copy_tree(Node* other_noe, Node* p
 template <typename Key, typename T, typename Compare, typename Allocator>
 BinarySearchTree<Key, T, Compare, Allocator>::BinarySearchTree(const BinarySearchTree& other) 
     : root_(copy_tree(other.root_, nullptr)),
-      size(other.size_),
+      size_(other.size_),
       comp_(other.comp_),
       alloc_(other.alloc_) {}
 
 template <typename Key, typename T, typename Compare, typename Allocator>
-BinarySearchTree<Key, T, Compare, Allocator>::BinarySearchTree(const BinarySearchTree&& other) noexcept
-    : root_(other.root_), size(other.size_), comp_(other.comp_), alloc_(other.alloc_) {
+BinarySearchTree<Key, T, Compare, Allocator>::BinarySearchTree(BinarySearchTree&& other) noexcept
+    : root_(other.root_), size_(other.size_), comp_(other.comp_), alloc_(other.alloc_) {
     other.root_ = nullptr;
     other.size_ = 0;
 }
@@ -232,7 +227,7 @@ BinarySearchTree<Key, T, Compare, Allocator>::operator=(const BinarySearchTree& 
 
 template <typename Key, typename T, typename Compare, typename Allocator>
 BinarySearchTree<Key, T, Compare, Allocator>& 
-BinarySearchTree<Key, T, Compare, Allocator>::operator=(const BinarySearchTree&& other) noexcept {
+BinarySearchTree<Key, T, Compare, Allocator>::operator=(BinarySearchTree&& other) noexcept {
     if (this != &other) {
         clear();
         root_ = other.root_;
@@ -312,37 +307,13 @@ BinarySearchTree<Key, T, Compare, Allocator>::crend() const noexcept {
 
 template <typename Key, typename T, typename Compare, typename Allocator>
 void BinarySearchTree<Key, T, Compare, Allocator>::clear() noexcept {
-    distroy(root_);
+    destroy(root_);
     root_ = nullptr;
     size_ = 0;
 }
 
 template <typename Key, typename T, typename Compare, typename Allocator>
 std::pair<typename BinarySearchTree<Key, T, Compare, Allocator>::iterator, bool>
-BinarySearchTree<Key, T, Compare, Allocator>::insert(const value_type& value) {
-    Node* parent = nullptr;
-    Node** curr = &root_;
-    while (*curr) {
-        parent = *curr;
-        if (comp_(value.first, (*curr)->data.first)) {
-            curr = &((*curr)->left);
-        }
-        else if (comp_((*curr)->data.first, value.first)) {
-            curr = &((*curr)->right);
-        }
-        else {
-            return std::make_pair(iterator(*curr, this), false);
-        }
-    }
-    Node* new_node = new Node(value);
-    new_node->parent = parent;
-    *curr = new_node;
-    ++size_;
-    return std::make_pair(iterator(new_node, this), true);
-}
-
-template <typename Key, typename T, typename Compare, typename Allocator>
-typename BinarySearchTree<Key, T, Compare, Allocator>::iterator
 BinarySearchTree<Key, T, Compare, Allocator>::insert(const value_type& value) {
     Node* parent = nullptr;
     Node** curr = &root_;
@@ -459,8 +430,8 @@ BinarySearchTree<Key, T, Compare, Allocator>::clower_bound(const key_type& key) 
 }
 
 template <typename Key, typename T, typename Compare, typename Allocator>
-typename BinarySearchTree<Key, T, Compare, Allocator>::const_iterator 
-BinarySearchTree<Key, T, Compare, Allocator>::upper_bound(const key_type& key) const {
+typename BinarySearchTree<Key, T, Compare, Allocator>::iterator 
+BinarySearchTree<Key, T, Compare, Allocator>::upper_bound(const key_type& key) {
     Node* curr = root_;
     Node* candidate = nullptr;
     while (curr) {
