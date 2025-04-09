@@ -16,6 +16,7 @@ template <
     typename Allocator = std::allocator<std::pair<const Key, T>>
 >
 class BinarySearchTree {
+    struct Node;
 public:
     using key_type = Key;
     using mapped_type = T;
@@ -32,8 +33,14 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    class iterator : public std::iterator<std::bidirectional_iterator_tag, value_type> {
+    class iterator {
     public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type        = BinarySearchTree::value_type;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = value_type*;
+        using reference         = value_type&;
+
         iterator();
         iterator(typename BinarySearchTree::Node* node, const BinarySearchTree* tree);
         value_type& operator*() const;
@@ -53,6 +60,12 @@ public:
 
     class const_iterator : public std::iterator<std::bidirectional_iterator_tag, const value_type> {
     public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type        = BinarySearchTree::value_type;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = const value_type*;
+        using reference         = const value_type&;
+        
         const_iterator();
         const_iterator(typename BinarySearchTree::Node* node, const BinarySearchTree* tree);
         const_iterator(const iterator& it);
@@ -83,13 +96,13 @@ public:
     size_type max_size() const noexcept;
 
     iterator begin() noexcept;
-    const_iterator begin() const noexcept;
+    const_iterator cbegin() const noexcept;
     iterator end() noexcept;
-    const_iterator end() const noexcept;
+    const_iterator cend() const noexcept;
     reverse_iterator rbegin() noexcept;
-    const_reverse_iterator rbegin() const noexcept;
+    const_reverse_iterator crbegin() const noexcept;
     reverse_iterator rend() noexcept;
-    const_reverse_iterator rend() const noexcept;
+    const_reverse_iterator crend() const noexcept;
 
     void clear() noexcept;
     std::pair<iterator, bool> insert(const value_type& value);
@@ -103,14 +116,14 @@ public:
     void erase(iterator first, iterator last);
 
     iterator find(const key_type& key);
-    const_iterator find(const key_type& key) const;
+    const_iterator cfind(const key_type& key) const;
     size_type count(const key_type& key) const;
     iterator lower_bound(const key_type& key);
-    const_iterator lower_bound(const key_type& key) const;
+    const_iterator clower_bound(const key_type& key) const;
     iterator upper_bound(const key_type& key);
-    const_iterator upper_bound(const key_type& key) const;
+    const_iterator cupper_bound(const key_type& key) const;
     std::pair<iterator, iterator> equal_range(const key_type& key);
-    std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const;
+    std::pair<const_iterator, const_iterator> cequal_range(const key_type& key) const;
 
     key_compare key_comp() const;
     value_compare value_comp() const;
@@ -138,5 +151,7 @@ private:
     void erase_node(Node* node);
     void transplant(Node* u, Node* v);
 };
+
+#include "binarySearchTreeImplementation.tpp"
 
 #endif 
