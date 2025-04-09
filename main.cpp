@@ -1,6 +1,4 @@
-#include "BST.hpp"
-#include <iostream>
-#include <vector>
+#include "binarySearchTreeHeader.hpp"
 
 int main() {
     std::cout << "Creating BinarySearchTree<int, std::string> bst\n";
